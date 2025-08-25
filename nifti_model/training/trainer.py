@@ -118,7 +118,6 @@ class TrainingManager:
         # Rich progress bar
         progress_bar = RichProgressBar(
             leave=True,
-            theme=RichProgressBar.default_theme,
         )
         callbacks.append(progress_bar)
         
