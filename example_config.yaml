@@ -1,0 +1,52 @@
+# Example configuration for NIFTI 2D slice-based segmentation
+# This shows how to configure slice processing and Hounsfield Unit processing
+
+data:
+  data_dir: "./data/volumes"
+  annotation_dir: "./data/annotations" 
+  train_split: 0.7
+  val_split: 0.2
+  test_split: 0.1
+  
+  # Slice processing parameters
+  slice_axis: 2                        # Extract slices along sagittal axis (0=axial, 1=coronal, 2=sagittal)
+  batch_size: 8                        # Number of slices per batch from same volume
+  img_size: [224, 224]                 # Target 2D slice size [H, W]
+  
+  # Target processing parameters (for 3D volumes before slicing)
+  target_spacing: [1.0, 1.0, 1.0]     # 1mm isotropic
+  target_size: [224, 224, 64]         # Standard volume size before slicing
+  
+  # Hounsfield Unit normalization settings
+  use_adaptive_hu_normalization: true  # Recommended for robustness
+  adaptive_hu_lower_percentile: 0.5    # Lower percentile for windowing
+  adaptive_hu_upper_percentile: 99.5   # Upper percentile for windowing
+  
+  # Alternative: Fixed HU windowing (set use_adaptive_hu_normalization: false)
+  # hu_window_preset: "soft_tissue"    # Use predefined window
+  # hu_min: -160.0                     # Or custom HU range
+  # hu_max: 240.0
+  
+model:
+  img_size: [224, 224]                 # 2D slice size [H, W]
+  in_channels: 1
+  out_channels: 1
+  features: [32, 32, 64, 128, 256, 32] # UNet feature channels for each level
+  activation: "PRELU"                  # Activation function
+  spatial_dims: 2                      # Fixed to 2D for slice processing
+  slice_axis: 2                        # Must match data.slice_axis
+  
+training:
+  epochs: 100
+  batch_size: 8                        # Slices per batch from same volume
+  learning_rate: 1e-4
+  optimizer: "AdamW"
+  loss_function: "DiceCELoss"
+  
+wandb:
+  enabled: true
+  project: "nifti-segmentation"
+  tags: ["unet2d", "slice-based", "hu-normalization"]
+  
+# Output directory
+output_dir: "./outputs"
