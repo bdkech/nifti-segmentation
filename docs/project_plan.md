@@ -9,15 +9,27 @@ The concept is this:
 - 3D volumes are too large for most architectures.
 - We will split the volumes into their slices and annotations.
   - Annotations will also be in NIFTI format.  They are a binary mask.
+  - There are multiple annotation types: ART for artery, RA for rectus abdominus muscle, S_FAT for subcutaneous fat.
 - Each batch of training will process one volume.
   - This hopefully eliminates any processing issues and helps learn individual features.
 
-We will use a UNetR architecture.  The code should:
+We will use a UNet architecture.  The code should:
 
 1. Provide the methods for loading the NIFTIs.
 2. Processing them in batches of 1 NIFTI per batch.
 3. Provide the logic for running a training loop for the UNetR architecture.
 4. Provide the final segmentation as a volume.
+5. Arguments should be set through command line arguments, or a config file.
+
+The directory structure of the input is as follows:
+
+```
+|-data_dir/
+|-subject_id/
+|    |-various subdirectory names with study volume/
+|     |- *.nii.gz
+|- Segmentations.*.nii.gz
+```
 
 ## Architecture
 

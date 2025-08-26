@@ -3,9 +3,9 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "nifti-model"
+name = "niftilearn"
 version = "0.1.0"
-description = "NIFTI volume segmentation pipeline using UNetR architecture"
+description = "NIFTI volume segmentation pipeline using slice-based UNet architecture"
 authors = [
     {name = "Your Name", email = "your.email@example.com"},
 ]
@@ -37,7 +37,7 @@ dev = [
 ]
 
 [project.scripts]
-nifti-model = "nifti_model.cli.main:main"
+niftilearn = "niftilearn.cli.main:main"
 
 [tool.ruff]
 line-length = 80

@@ -21,7 +21,7 @@ This document contains critical information about working with this codebase. Fo
    - Public APIs must have docstrings
    - Functions must be focused and small
    - Follow existing patterns exactly
-   - Line length: 80 chars maximum
+   - Line length: 120 chars maximum
    - Doc strings must be written for each function using the Google style guide
 
 
