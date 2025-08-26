@@ -3,7 +3,7 @@
 from pathlib import Path
 from typing import Any, Dict, List, Literal, Optional, Union
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 
 class DataConfig(BaseModel):
@@ -56,27 +56,28 @@ class DataConfig(BaseModel):
     hu_min: Optional[float] = Field(None, description="Minimum HU value")
     hu_max: Optional[float] = Field(None, description="Maximum HU value")
     
-    @validator("val_split", "test_split")
-    def validate_splits(cls, v: float, values: Dict[str, Any]) -> float:
+    @model_validator(mode='after')
+    def validate_splits(self) -> 'DataConfig':
         """Ensure splits sum to 1.0."""
-        if "train_split" in values:
-            total = values["train_split"] + v
-            if "test_split" in values:
-                total += values["test_split"]
-            elif "val_split" in values and v != values["val_split"]:
-                # This is test_split validation
-                total += values["val_split"]
-            if abs(total - 1.0) > 1e-6:
-                raise ValueError("Data splits must sum to 1.0")
+        total = self.train_split + self.val_split + self.test_split
+        if abs(total - 1.0) > 1e-6:
+            raise ValueError(f"Data splits must sum to 1.0, got {total}")
+        return self
+    
+    @field_validator("img_size")
+    @classmethod
+    def validate_img_size(cls, v: List[int]) -> List[int]:
+        """Validate img_size has exactly 2 elements."""
+        if len(v) != 2:
+            raise ValueError("img_size must have exactly 2 elements [H, W]")
         return v
     
-    @validator("img_size", "target_spacing", "target_size")
-    def validate_list_lengths(cls, v: List[Union[int, float]], field) -> List[Union[int, float]]:
-        """Validate list field lengths."""
-        if field.name == "img_size" and len(v) != 2:
-            raise ValueError("img_size must have exactly 2 elements [H, W]")
-        elif field.name in ["target_spacing", "target_size"] and len(v) != 3:
-            raise ValueError(f"{field.name} must have exactly 3 elements [x, y, z]")
+    @field_validator("target_spacing", "target_size")
+    @classmethod
+    def validate_3d_lists(cls, v: List[Union[int, float]]) -> List[Union[int, float]]:
+        """Validate 3D lists have exactly 3 elements."""
+        if len(v) != 3:
+            raise ValueError("target_spacing and target_size must have exactly 3 elements [x, y, z]")
         return v
 
 
@@ -129,8 +130,9 @@ class ModelConfig(BaseModel):
         description="Slice axis (must match data.slice_axis)"
     )
     
-    @validator("img_size")
-    def validate_img_size(cls, v: List[int]) -> List[int]:
+    @field_validator("img_size")
+    @classmethod
+    def validate_model_img_size(cls, v: List[int]) -> List[int]:
         """Validate image size."""
         if len(v) != 2:
             raise ValueError("img_size must have exactly 2 elements [H, W]")
@@ -185,7 +187,8 @@ class Config(BaseModel):
     wandb: WandBConfig = Field(default_factory=WandBConfig)
     output_dir: Path = Field(Path("./outputs"), description="Output directory")
     
-    @validator("output_dir")
+    @field_validator("output_dir")
+    @classmethod
     def validate_output_dir(cls, v: Path) -> Path:
         """Ensure output directory is absolute."""
         return v.resolve()
