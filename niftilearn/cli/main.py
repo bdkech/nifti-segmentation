@@ -123,7 +123,7 @@ def train(
     from niftilearn.data.datamodule import NiftiDataModule
     from niftilearn.models.unet import UNet2D
     import pytorch_lightning as pl
-    from lightning.pytorch.callbacks import ModelCheckpoint, EarlyStopping, RichProgressBar
+    from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping, RichProgressBar
     
     try:
         config = load_config(config_path)
