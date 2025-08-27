@@ -58,7 +58,7 @@ def extract_volume_metadata(
                     "temporal": header.get_xyzt_units()[1],
                 },
                 "description": str(
-                    header.get("descrip", b"").decode("utf-8", errors="ignore")
+                    header.get("descrip", b"").tobytes().decode("utf-8", errors="ignore").rstrip('\x00')
                 ),
             }
         )
