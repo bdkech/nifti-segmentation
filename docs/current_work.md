@@ -16,18 +16,15 @@
 
 ## Loss functions and metrics
 - [ ] Implement configurable loss functions (Dice, DiceCE, Focal)
-- [ ] Add segmentation metrics (Dice coefficient, IoU, sensitivity, specificity)
+- [ ] Add segmentation metrics (Dice coefficient, IoU)
 - [ ] Support multi-class segmentation evaluation
 - [ ] Add proper metric aggregation across batches
 
 ## Model utilities
-- [ ] Add model summary and parameter counting
 - [ ] Implement model checkpoint loading/saving
 - [ ] Add inference utilities for volume reconstruction
-- [ ] Create model validation functions
 
 ## Integration and exports
 - [ ] Export model classes in `models/__init__.py`
 - [ ] Update main package exports
-- [ ] Add model configuration validation
 - [ ] Ensure compatibility with existing data pipeline

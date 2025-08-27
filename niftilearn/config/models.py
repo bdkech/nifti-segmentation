@@ -159,14 +159,17 @@ class TrainingConfig(BaseModel):
     optimizer: Literal["Adam", "AdamW", "SGD"] = Field(
         "AdamW", description="Optimizer type"
     )
-    loss_function: Literal["DiceLoss", "DiceCELoss", "FocalLoss"] = Field(
-        "DiceCELoss", description="Loss function"
+    loss_function: Literal["dice", "dicece", "focal"] = Field(
+        "dicece", description="Loss function (matches training module names)"
     )
-    weight_decay: float = Field(
-        0.01, ge=0.0, description="Weight decay for optimizer"
+    loss_kwargs: dict[str, Any] = Field(
+        default_factory=dict, description="Additional loss function parameters"
     )
-    scheduler: Optional[Literal["cosine", "step", "plateau"]] = Field(
-        None, description="Learning rate scheduler"
+    scheduler: Optional[Literal["StepLR", "CosineAnnealingLR", "ReduceLROnPlateau"]] = Field(
+        None, description="Learning rate scheduler type"
+    )
+    scheduler_kwargs: dict[str, Any] = Field(
+        default_factory=dict, description="Additional scheduler parameters"
     )
     patience: int = Field(10, gt=0, description="Early stopping patience")
     min_delta: float = Field(

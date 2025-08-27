@@ -41,7 +41,12 @@ training:
   batch_size: 8                        # Slices per batch from same volume
   learning_rate: 1e-4
   optimizer: "AdamW"
-  loss_function: "DiceCELoss"
+  loss_function: "dicece"              # Updated to match training module names
+  loss_kwargs: {}                      # Additional loss function parameters
+  scheduler: null                      # Options: "StepLR", "CosineAnnealingLR", "ReduceLROnPlateau"
+  scheduler_kwargs: {}                 # Additional scheduler parameters
+  patience: 15                         # Early stopping patience
+  min_delta: 1e-6                      # Minimum change for improvement
   
 wandb:
   enabled: true
