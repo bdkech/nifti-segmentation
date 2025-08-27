@@ -1,0 +1,49 @@
+# CPU Training Configuration
+# For training on systems without GPU acceleration
+
+data:
+  data_dir: "./data/volumes"
+  annotation_dir: "./data/annotations"
+  train_split: 0.7
+  val_split: 0.2
+  test_split: 0.1
+  slice_axis: 2
+  batch_size: 4                        # Smaller batch size for CPU training
+  img_size: [128, 128]                 # Smaller images for faster CPU processing
+  target_spacing: [1.0, 1.0, 1.0]
+  target_size: [128, 128, 32]          # Smaller target size
+  use_adaptive_hu_normalization: true
+  adaptive_hu_lower_percentile: 0.5
+  adaptive_hu_upper_percentile: 99.5
+
+compute:
+  devices: "cpu"                       # Force CPU usage
+  accelerator: "cpu"
+  strategy: "auto"
+  precision: "32"                      # Full precision (mixed precision not supported on CPU)
+  num_workers: 2                       # Fewer workers for CPU
+
+model:
+  img_size: [128, 128]
+  in_channels: 1
+  out_channels: 1
+  features: [16, 16, 32, 64, 128, 16]  # Smaller model for CPU training
+  activation: "RELU"
+  spatial_dims: 2
+  slice_axis: 2
+
+training:
+  epochs: 50                           # Fewer epochs for testing
+  batch_size: 4
+  learning_rate: 1e-3                  # Slightly higher LR
+  optimizer: "Adam"
+  loss_function: "dice"
+  patience: 10
+  min_delta: 1e-4
+
+wandb:
+  enabled: false                       # Disable W&B for local testing
+  project: "nifti-cpu-test"
+  tags: ["cpu", "testing"]
+
+output_dir: "./outputs/cpu_test"

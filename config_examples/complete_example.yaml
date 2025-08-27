@@ -1,0 +1,125 @@
+# Complete Example Configuration for NIFTI Medical Image Segmentation
+# This configuration demonstrates all available options with detailed explanations
+
+# =============================================================================
+# DATA CONFIGURATION
+# =============================================================================
+data:
+  # Data directories
+  data_dir: "./data/volumes"           # Directory containing NIFTI volumes
+  annotation_dir: "./data/annotations" # Directory containing segmentation masks
+  
+  # Dataset splits (must sum to 1.0)
+  train_split: 0.7                     # 70% for training
+  val_split: 0.2                       # 20% for validation  
+  test_split: 0.1                      # 10% for testing
+  
+  # Slice extraction settings
+  slice_axis: 2                        # Axis for slice extraction
+                                       # 0 = axial (top-down), 1 = coronal (front-back), 2 = sagittal (left-right)
+  batch_size: 8                        # Slices per batch from the same volume
+  img_size: [224, 224]                 # Target 2D slice size after resizing [Height, Width]
+  
+  # Volume preprocessing (applied before slice extraction)
+  target_spacing: [1.0, 1.0, 1.0]     # Target voxel spacing in mm [x, y, z]
+  target_size: [224, 224, 64]         # Target volume size [H, W, D] before slicing
+  
+  # Hounsfield Unit (HU) normalization - CRITICAL for CT scans
+  use_adaptive_hu_normalization: true  # Recommended: adapts to each volume's HU distribution
+  adaptive_hu_lower_percentile: 0.5    # Lower bound percentile for windowing (removes outliers)
+  adaptive_hu_upper_percentile: 99.5   # Upper bound percentile for windowing
+  
+  # Alternative: Fixed HU windowing (uncomment and set use_adaptive_hu_normalization: false)
+  # hu_window_preset: "soft_tissue"    # Predefined presets: "soft_tissue", "bone", "lung"
+  # hu_min: -160.0                     # Custom minimum HU value
+  # hu_max: 240.0                      # Custom maximum HU value
+
+# =============================================================================
+# COMPUTE CONFIGURATION
+# =============================================================================
+compute:
+  devices: "auto"                      # GPU configuration options:
+                                       # - "auto": Use all available GPUs
+                                       # - "cpu": Force CPU usage
+                                       # - 1: Use single GPU (device 0)
+                                       # - [0, 1]: Use specific GPUs
+  accelerator: "gpu"                   # Hardware accelerator:
+                                       # - "gpu": NVIDIA/AMD GPUs
+                                       # - "mps": Apple Silicon (M1/M2)
+                                       # - "cpu": CPU only
+  strategy: "ddp"                      # Multi-GPU strategy:
+                                       # - "ddp": Distributed Data Parallel (recommended)
+                                       # - "fsdp": Fully Sharded Data Parallel (large models)
+                                       # - "auto": Let Lightning choose
+  precision: "16-mixed"                # Training precision:
+                                       # - "32": Full precision (slower, more memory)
+                                       # - "16-mixed": Mixed precision (faster, less memory)
+                                       # - "bf16-mixed": BFloat16 (newer GPUs)
+  num_workers: 4                       # Data loader workers (0 = main process only)
+
+# =============================================================================
+# MODEL CONFIGURATION
+# =============================================================================
+model:
+  img_size: [224, 224]                 # Must match data.img_size exactly
+  in_channels: 1                       # Input channels (1 for grayscale medical images)
+  out_channels: 1                      # Output channels (1 for binary segmentation)
+  features: [32, 32, 64, 128, 256, 32] # UNet encoder-decoder feature channels
+                                       # [initial, level1, level2, level3, level4, final]
+  activation: "PRELU"                  # Activation function:
+                                       # - "RELU": Standard ReLU
+                                       # - "PRELU": Parametric ReLU (learnable)
+                                       # - "LEAKYRELU": Leaky ReLU
+  spatial_dims: 2                      # Always 2 for slice-based processing
+  slice_axis: 2                        # Must match data.slice_axis exactly
+
+# =============================================================================
+# TRAINING CONFIGURATION
+# =============================================================================
+training:
+  epochs: 100                          # Maximum training epochs
+  batch_size: 8                        # Must match data.batch_size exactly
+  learning_rate: 1e-4                  # Initial learning rate (Adam/AdamW default)
+  
+  # Optimizer settings
+  optimizer: "AdamW"                   # Optimizer choice:
+                                       # - "Adam": Adaptive moments
+                                       # - "AdamW": Adam with weight decay
+                                       # - "SGD": Stochastic gradient descent
+  
+  # Loss function configuration
+  loss_function: "dicece"              # Loss function:
+                                       # - "dice": Dice loss only
+                                       # - "dicece": Dice + Cross Entropy (recommended)
+                                       # - "focal": Focal loss (for imbalanced data)
+  loss_kwargs: {}                      # Additional loss parameters
+                                       # Example for focal: {alpha: 1.0, gamma: 2.0}
+  
+  # Learning rate scheduling
+  scheduler: null                      # LR scheduler (null = constant LR):
+                                       # - "StepLR": Decay at fixed intervals
+                                       # - "CosineAnnealingLR": Cosine annealing
+                                       # - "ReduceLROnPlateau": Reduce on plateau
+  scheduler_kwargs: {}                 # Scheduler parameters
+                                       # StepLR: {step_size: 30, gamma: 0.1}
+                                       # CosineAnnealingLR: {T_max: 100}
+                                       # ReduceLROnPlateau: {patience: 10, factor: 0.5}
+  
+  # Early stopping
+  patience: 15                         # Epochs to wait without improvement before stopping
+  min_delta: 1e-6                      # Minimum change to qualify as improvement
+
+# =============================================================================
+# WEIGHTS & BIASES CONFIGURATION
+# =============================================================================
+wandb:
+  enabled: true                        # Enable experiment tracking
+  project: "nifti-segmentation"        # W&B project name
+  tags: ["unet2d", "slice-based", "hu-normalization"]  # Experiment tags for organization
+  name: null                           # Experiment name (auto-generated if null)
+  notes: null                          # Experiment description
+
+# =============================================================================
+# OUTPUT CONFIGURATION
+# =============================================================================
+output_dir: "./outputs"                # Directory for saved models, logs, and results

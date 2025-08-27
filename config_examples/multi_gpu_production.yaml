@@ -1,0 +1,54 @@
+# Multi-GPU Production Configuration
+# For high-performance training on multiple GPUs
+
+data:
+  data_dir: "./data/volumes"
+  annotation_dir: "./data/annotations"
+  train_split: 0.8
+  val_split: 0.15
+  test_split: 0.05
+  slice_axis: 2
+  batch_size: 16                       # Larger batch size for multi-GPU
+  img_size: [256, 256]                 # Higher resolution
+  target_spacing: [0.5, 0.5, 0.5]     # Higher resolution spacing
+  target_size: [256, 256, 128]
+  use_adaptive_hu_normalization: true
+  adaptive_hu_lower_percentile: 1.0
+  adaptive_hu_upper_percentile: 99.0
+
+compute:
+  devices: [0, 1, 2, 3]                # Use 4 specific GPUs
+  accelerator: "gpu"
+  strategy: "ddp"                      # Distributed Data Parallel
+  precision: "16-mixed"                # Mixed precision for speed
+  num_workers: 8                       # More workers for data loading
+
+model:
+  img_size: [256, 256]
+  in_channels: 1
+  out_channels: 1
+  features: [64, 64, 128, 256, 512, 64]  # Larger model for better performance
+  activation: "PRELU"
+  spatial_dims: 2
+  slice_axis: 2
+
+training:
+  epochs: 200                          # More epochs for production
+  batch_size: 16
+  learning_rate: 2e-4                  # Adjusted for larger batch size
+  optimizer: "AdamW"
+  loss_function: "dicece"
+  scheduler: "CosineAnnealingLR"       # Learning rate scheduling
+  scheduler_kwargs:
+    T_max: 200
+  patience: 25
+  min_delta: 1e-5
+
+wandb:
+  enabled: true
+  project: "nifti-production"
+  tags: ["multi-gpu", "production", "high-res"]
+  name: "production-run-v1"
+  notes: "High resolution multi-GPU training run"
+
+output_dir: "./outputs/production"
