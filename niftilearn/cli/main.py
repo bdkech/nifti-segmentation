@@ -149,7 +149,7 @@ def train(
             'scheduler_kwargs': config.training.scheduler_kwargs,
         }
         model = UNet2D(config.model, training_config_dict)
-        datamodule = NiftiDataModule(config.data)
+        datamodule = NiftiDataModule(config.data, config.compute)
         
         # Setup callbacks
         callbacks = []

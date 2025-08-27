@@ -16,6 +16,13 @@ data:
   adaptive_hu_lower_percentile: 0.5
   adaptive_hu_upper_percentile: 99.5
 
+compute:
+  devices: "auto"                      # Use available GPU or CPU
+  accelerator: "gpu"                   # Try GPU first, fallback to CPU
+  strategy: "auto"                     # Let Lightning choose best strategy
+  precision: "32"                      # Full precision for stability
+  num_workers: 2                       # Fewer workers for quick start
+
 model:
   img_size: [128, 128]
   in_channels: 1
