@@ -58,15 +58,15 @@ def main(
         log_level = "ERROR"
     else:
         log_level = "INFO"
-    
+
     # Setup logging
     setup_logging(level=log_level, log_file=log_file)
-    
+
     # Store config and log settings in context
     ctx.ensure_object(dict)
     ctx.obj["config_path"] = config
     ctx.obj["log_level"] = log_level
-    
+
     logger.info(f"NiftiLearn CLI started with log level: {log_level}")
 
 
@@ -98,14 +98,14 @@ def train(
 ) -> None:
     """Train a segmentation model on NIFTI volumes."""
     config_path = ctx.obj.get("config_path")
-    
+
     if not config_path:
         raise click.ClickException(
             "Configuration file required for training. Use --config option."
         )
-    
+
     logger.info(f"Starting training with config: {config_path}")
-    
+
     # CLI overrides
     overrides = {}
     if epochs is not None:
@@ -117,7 +117,7 @@ def train(
     if learning_rate is not None:
         overrides["learning_rate"] = learning_rate
         logger.info(f"Overriding learning rate: {learning_rate}")
-    
+
     # TODO: Implement training logic
     logger.warning("Training implementation not yet available")
 
@@ -153,14 +153,14 @@ def predict(
 ) -> None:
     """Generate predictions on a NIFTI volume using a trained model."""
     config_path = ctx.obj.get("config_path")
-    
+
     logger.info(f"Starting prediction with model: {model}")
     logger.info(f"Input volume: {input}")
     logger.info(f"Output path: {output}")
-    
+
     if config_path:
         logger.info(f"Using config: {config_path}")
-    
+
     # TODO: Implement prediction logic
     logger.warning("Prediction implementation not yet available")
 
@@ -187,19 +187,19 @@ def validate(
 ) -> None:
     """Validate a trained model on test data."""
     config_path = ctx.obj.get("config_path")
-    
+
     if not config_path and not data_dir:
         raise click.ClickException(
             "Either configuration file (--config) or data directory (--data-dir) required."
         )
-    
+
     logger.info(f"Starting validation with model: {model}")
-    
+
     if config_path:
         logger.info(f"Using config: {config_path}")
     if data_dir:
         logger.info(f"Using data directory: {data_dir}")
-    
+
     # TODO: Implement validation logic
     logger.warning("Validation implementation not yet available")
 

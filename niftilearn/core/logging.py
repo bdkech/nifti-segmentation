@@ -2,7 +2,7 @@
 
 import sys
 from pathlib import Path
-from typing import Optional, Union
+from typing import Optional
 
 from loguru import logger
 from rich.console import Console
@@ -19,13 +19,13 @@ from rich.progress import (
 
 
 def setup_logging(
-    level: str = "INFO", 
+    level: str = "INFO",
     log_file: Optional[Path] = None,
     show_time: bool = True,
     show_level: bool = True,
 ) -> None:
     """Set up logging configuration for NiftiLearn.
-    
+
     Args:
         level: Log level (DEBUG, INFO, WARNING, ERROR)
         log_file: Optional path to log file
@@ -34,7 +34,7 @@ def setup_logging(
     """
     # Remove default logger
     logger.remove()
-    
+
     # Console format based on level and options
     console_format = ""
     if show_time:
@@ -42,7 +42,7 @@ def setup_logging(
     if show_level:
         console_format += "<level>{level: <8}</level> | "
     console_format += "<level>{message}</level>"
-    
+
     # Add console handler
     logger.add(
         sys.stderr,
@@ -52,18 +52,18 @@ def setup_logging(
         backtrace=True,
         diagnose=True,
     )
-    
+
     # Add file handler if specified
     if log_file:
         log_file.parent.mkdir(parents=True, exist_ok=True)
-        
+
         file_format = (
             "{time:YYYY-MM-DD HH:mm:ss.SSS} | "
             "{level: <8} | "
             "{name}:{function}:{line} | "
             "{message}"
         )
-        
+
         logger.add(
             str(log_file),
             format=file_format,
@@ -74,18 +74,18 @@ def setup_logging(
             backtrace=True,
             diagnose=True,
         )
-        
+
         logger.info(f"Logging to file: {log_file}")
-    
+
     logger.info(f"Logging initialized with level: {level}")
 
 
 def create_progress_bar(description: str = "Processing") -> Progress:
     """Create a Rich progress bar for training/processing.
-    
+
     Args:
         description: Description text for the progress bar
-        
+
     Returns:
         Configured Progress instance
     """
@@ -104,7 +104,7 @@ def create_progress_bar(description: str = "Processing") -> Progress:
 
 def create_simple_progress() -> Progress:
     """Create a simple progress bar without time estimates.
-    
+
     Returns:
         Simple Progress instance
     """
@@ -119,28 +119,28 @@ def create_simple_progress() -> Progress:
 
 class LoggingMixin:
     """Mixin class to add logging capabilities to other classes."""
-    
+
     @property
     def logger(self):
         """Get logger instance for this class."""
         return logger.bind(classname=self.__class__.__name__)
-    
+
     def log_info(self, message: str) -> None:
         """Log info message with class context."""
         self.logger.info(message)
-    
+
     def log_warning(self, message: str) -> None:
         """Log warning message with class context."""
         self.logger.warning(message)
-    
+
     def log_error(self, message: str) -> None:
         """Log error message with class context."""
         self.logger.error(message)
-    
+
     def log_debug(self, message: str) -> None:
         """Log debug message with class context."""
         self.logger.debug(message)
-    
+
     def log_exception(self, message: str) -> None:
         """Log exception with traceback and class context."""
         self.logger.exception(message)
@@ -148,7 +148,7 @@ class LoggingMixin:
 
 def log_config_summary(config) -> None:
     """Log a summary of the configuration.
-    
+
     Args:
         config: Configuration object to summarize
     """
@@ -171,15 +171,16 @@ def log_system_info() -> None:
     """Log system and environment information."""
     import platform
     import sys
-    
+
     logger.info("=== System Information ===")
     logger.info(f"Python version: {sys.version}")
     logger.info(f"Platform: {platform.platform()}")
     logger.info(f"Architecture: {platform.architecture()}")
     logger.info(f"Processor: {platform.processor()}")
-    
+
     try:
         import torch
+
         logger.info(f"PyTorch version: {torch.__version__}")
         logger.info(f"CUDA available: {torch.cuda.is_available()}")
         if torch.cuda.is_available():
@@ -190,11 +191,12 @@ def log_system_info() -> None:
                 logger.info(f"GPU {i}: {gpu_name}")
     except ImportError:
         logger.warning("PyTorch not available")
-    
+
     try:
         import lightning
+
         logger.info(f"Lightning version: {lightning.__version__}")
     except ImportError:
         logger.warning("Lightning not available")
-    
+
     logger.info("=== End System Information ===")
