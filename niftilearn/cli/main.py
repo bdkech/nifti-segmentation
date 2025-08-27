@@ -139,17 +139,16 @@ def train(
             
         logger.info(f"Training configuration loaded: {config.training}")
         
-        # Create enhanced model config with training parameters
-        model_config = config.model
-        model_config.optimizer = config.training.optimizer
-        model_config.learning_rate = config.training.learning_rate
-        model_config.loss_function = config.training.loss_function
-        model_config.loss_kwargs = config.training.loss_kwargs
-        model_config.scheduler = config.training.scheduler
-        model_config.scheduler_kwargs = config.training.scheduler_kwargs
-        
         # Create model and data module
-        model = UNet2D(model_config)
+        training_config_dict = {
+            'optimizer': config.training.optimizer,
+            'learning_rate': config.training.learning_rate,
+            'loss_function': config.training.loss_function,
+            'loss_kwargs': config.training.loss_kwargs,
+            'scheduler': config.training.scheduler,
+            'scheduler_kwargs': config.training.scheduler_kwargs,
+        }
+        model = UNet2D(config.model, training_config_dict)
         datamodule = NiftiDataModule(config.data)
         
         # Setup callbacks

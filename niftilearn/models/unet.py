@@ -8,7 +8,7 @@ import torch.nn as nn
 from loguru import logger
 from monai.networks.nets import UNet
 
-from niftilearn.config.models import ModelConfig
+from niftilearn.config.models import Config, ModelConfig
 
 
 class UNet2D(pl.LightningModule):
@@ -26,11 +26,12 @@ class UNet2D(pl.LightningModule):
     Output tensors have the same shape [N, C, H, W] for segmentation masks.
     """
 
-    def __init__(self, config: ModelConfig) -> None:
+    def __init__(self, config: ModelConfig, training_config: dict = None) -> None:
         """Initialize UNet2D model.
         
         Args:
             config: Model configuration containing architecture parameters
+            training_config: Training configuration dict (optional, for compatibility)
             
         Raises:
             ValueError: If configuration parameters are invalid
@@ -38,6 +39,7 @@ class UNet2D(pl.LightningModule):
         super().__init__()
         
         self.config = config
+        self.training_config = training_config or {}
         
         # Validate configuration
         self._validate_config()
@@ -169,12 +171,11 @@ class UNet2D(pl.LightningModule):
         from torch.optim import Adam, AdamW, SGD
         from torch.optim.lr_scheduler import CosineAnnealingLR, ReduceLROnPlateau, StepLR
         
-        # Get training configuration from model config or use defaults
-        # Training parameters should be passed via the training config
-        optimizer_name = getattr(self.config, 'optimizer', 'AdamW')
-        learning_rate = getattr(self.config, 'learning_rate', 1e-4)
-        scheduler_name = getattr(self.config, 'scheduler', None)
-        scheduler_kwargs = getattr(self.config, 'scheduler_kwargs', {})
+        # Get training configuration from training_config or use defaults
+        optimizer_name = self.training_config.get('optimizer', 'AdamW')
+        learning_rate = self.training_config.get('learning_rate', 1e-4)
+        scheduler_name = self.training_config.get('scheduler', None)
+        scheduler_kwargs = self.training_config.get('scheduler_kwargs', {})
         
         # Initialize optimizer
         if optimizer_name.lower() == "adam":
@@ -243,8 +244,8 @@ class UNet2D(pl.LightningModule):
         
         # Initialize loss function if not already done
         if not hasattr(self, 'criterion'):
-            loss_name = getattr(self.config, 'loss_function', 'dicece')
-            loss_kwargs = getattr(self.config, 'loss_kwargs', {})
+            loss_name = self.training_config.get('loss_function', 'dicece')
+            loss_kwargs = self.training_config.get('loss_kwargs', {})
             self.criterion = get_loss_function(loss_name, **loss_kwargs)
             
         # Initialize training metrics if not already done
@@ -286,8 +287,8 @@ class UNet2D(pl.LightningModule):
         
         # Initialize loss function if not already done
         if not hasattr(self, 'criterion'):
-            loss_name = getattr(self.config, 'loss_function', 'dicece')
-            loss_kwargs = getattr(self.config, 'loss_kwargs', {})
+            loss_name = self.training_config.get('loss_function', 'dicece')
+            loss_kwargs = self.training_config.get('loss_kwargs', {})
             self.criterion = get_loss_function(loss_name, **loss_kwargs)
             
         # Initialize validation metrics if not already done
