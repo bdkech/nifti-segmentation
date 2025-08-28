@@ -5,14 +5,12 @@ handling proper spacing, orientation, and NIFTI format compatibility.
 """
 
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Optional, Union
 
 import nibabel as nib
 import numpy as np
 import torch
 from loguru import logger
-
-from niftilearn.core.metadata import VolumeMetadata, extract_volume_metadata
 
 
 class VolumeReconstructor:
@@ -41,10 +39,10 @@ class VolumeReconstructor:
     def reconstruct_volume(
         self,
         slice_predictions: torch.Tensor,
-        slice_indices: List[int],
+        slice_indices: list[int],
         reference_volume_path: Union[str, Path],
-        target_shape: Optional[Tuple[int, int, int]] = None,
-    ) -> Tuple[np.ndarray, nib.Nifti1Image]:
+        target_shape: Optional[tuple[int, int, int]] = None,
+    ) -> tuple[np.ndarray, nib.Nifti1Image]:
         """Reconstruct 3D volume from 2D slice predictions.
         
         Args:
@@ -131,7 +129,7 @@ class VolumeReconstructor:
         logger.info(f"Volume reconstruction completed: shape={reconstructed_volume.shape}")
         return reconstructed_volume, reconstructed_img
 
-    def _get_slice_shape(self, volume_shape: Tuple[int, int, int], axis: int) -> Tuple[int, int]:
+    def _get_slice_shape(self, volume_shape: tuple[int, int, int], axis: int) -> tuple[int, int]:
         """Get the 2D shape of a slice from a 3D volume shape.
         
         Args:
@@ -150,7 +148,7 @@ class VolumeReconstructor:
         else:
             raise ValueError(f"Invalid slice axis: {axis}")
 
-    def _resize_slice(self, slice_data: np.ndarray, target_shape: Tuple[int, int]) -> np.ndarray:
+    def _resize_slice(self, slice_data: np.ndarray, target_shape: tuple[int, int]) -> np.ndarray:
         """Resize a 2D slice to target shape using interpolation.
         
         Args:
@@ -185,7 +183,7 @@ class VolumeReconstructor:
             # Simple nearest neighbor resizing
             return self._simple_resize(slice_data, target_shape)
 
-    def _crop_or_pad(self, data: np.ndarray, target_shape: Tuple[int, int]) -> np.ndarray:
+    def _crop_or_pad(self, data: np.ndarray, target_shape: tuple[int, int]) -> np.ndarray:
         """Crop or pad data to match target shape.
         
         Args:
@@ -207,7 +205,7 @@ class VolumeReconstructor:
         
         return result
 
-    def _simple_resize(self, data: np.ndarray, target_shape: Tuple[int, int]) -> np.ndarray:
+    def _simple_resize(self, data: np.ndarray, target_shape: tuple[int, int]) -> np.ndarray:
         """Simple nearest neighbor resizing without external dependencies.
         
         Args:
@@ -234,14 +232,12 @@ class VolumeReconstructor:
 
     def save_volume(
         self,
-        volume_data: np.ndarray,
         nifti_image: nib.Nifti1Image,
         output_path: Union[str, Path],
     ) -> None:
         """Save reconstructed volume to disk.
         
         Args:
-            volume_data: 3D volume data
             nifti_image: NIFTI image with metadata
             output_path: Output file path
         """
@@ -256,7 +252,7 @@ class VolumeReconstructor:
 
 def reconstruct_volume_from_predictions(
     predictions: torch.Tensor,
-    slice_indices: List[int],
+    slice_indices: list[int],
     reference_volume: Union[str, Path],
     output_path: Union[str, Path],
     slice_axis: int = 2,
@@ -288,6 +284,6 @@ def reconstruct_volume_from_predictions(
     
     # Save volume
     output_path = Path(output_path)
-    reconstructor.save_volume(volume_data, nifti_image, output_path)
+    reconstructor.save_volume(nifti_image, output_path)
     
     return output_path
