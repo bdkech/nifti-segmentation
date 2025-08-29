@@ -105,9 +105,13 @@ def apply_cli_overrides(config: Config, overrides: dict[str, Any]) -> Config:
         # Apply training overrides
         if "epochs" in overrides:
             config_dict["training"]["epochs"] = overrides["epochs"]
-        if "batch_size" in overrides:
-            config_dict["training"]["batch_size"] = overrides["batch_size"]
-            config_dict["data"]["batch_size"] = overrides["batch_size"]
+        if "inference_chunk_size" in overrides:
+            config_dict["training"]["inference_chunk_size"] = overrides[
+                "inference_chunk_size"
+            ]
+            config_dict["data"]["inference_chunk_size"] = overrides[
+                "inference_chunk_size"
+            ]
         if "learning_rate" in overrides:
             config_dict["training"]["learning_rate"] = overrides[
                 "learning_rate"

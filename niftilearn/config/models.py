@@ -27,7 +27,11 @@ class DataConfig(BaseModel):
     slice_axis: Literal[0, 1, 2] = Field(
         2, description="Axis for slice extraction"
     )
-    batch_size: int = Field(8, gt=0, description="Batch size for training")
+    inference_chunk_size: int = Field(
+        8,
+        gt=0,
+        description="Number of slices to process at once during inference",
+    )
     img_size: list[int] = Field(
         [224, 224], description="Target 2D slice size [H, W]"
     )
@@ -152,7 +156,11 @@ class TrainingConfig(BaseModel):
     """Training configuration."""
 
     epochs: int = Field(100, gt=0, description="Number of training epochs")
-    batch_size: int = Field(8, gt=0, description="Training batch size")
+    inference_chunk_size: int = Field(
+        8,
+        gt=0,
+        description="Number of slices to process at once during inference",
+    )
     learning_rate: float = Field(
         1e-4, gt=0, description="Initial learning rate"
     )
@@ -165,9 +173,9 @@ class TrainingConfig(BaseModel):
     loss_kwargs: dict[str, Any] = Field(
         default_factory=dict, description="Additional loss function parameters"
     )
-    scheduler: Optional[Literal["StepLR", "CosineAnnealingLR", "ReduceLROnPlateau"]] = Field(
-        None, description="Learning rate scheduler type"
-    )
+    scheduler: Optional[
+        Literal["StepLR", "CosineAnnealingLR", "ReduceLROnPlateau"]
+    ] = Field(None, description="Learning rate scheduler type")
     scheduler_kwargs: dict[str, Any] = Field(
         default_factory=dict, description="Additional scheduler parameters"
     )
@@ -222,9 +230,9 @@ class Config(BaseModel):
                 f"model.img_size ({self.model.img_size})"
             )
 
-        # Ensure batch_size matches between data and training
-        if self.data.batch_size != self.training.batch_size:
+        # Ensure inference_chunk_size matches between data and training
+        if self.data.inference_chunk_size != self.training.inference_chunk_size:
             raise ValueError(
-                f"data.batch_size ({self.data.batch_size}) must match "
-                f"training.batch_size ({self.training.batch_size})"
+                f"data.inference_chunk_size ({self.data.inference_chunk_size}) must match "
+                f"training.inference_chunk_size ({self.training.inference_chunk_size})"
             )

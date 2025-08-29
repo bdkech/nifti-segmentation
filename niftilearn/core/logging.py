@@ -158,7 +158,7 @@ def log_config_summary(config) -> None:
     logger.info(f"Output directory: {config.output_dir}")
     logger.info(f"Slice axis: {config.data.slice_axis}")
     logger.info(f"Image size: {config.model.img_size}")
-    logger.info(f"Batch size: {config.training.batch_size}")
+    logger.info(f"Inference chunk size: {config.training.inference_chunk_size}")
     logger.info(f"Learning rate: {config.training.learning_rate}")
     logger.info(f"Epochs: {config.training.epochs}")
     logger.info(f"GPU devices: {config.compute.devices}")

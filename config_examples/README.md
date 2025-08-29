@@ -97,7 +97,7 @@ Choose the configuration that best matches your hardware and use case.
 Common modifications:
 - **data_dir/annotation_dir**: Point to your data
 - **img_size**: Adjust for your image resolution needs
-- **batch_size**: Increase/decrease based on GPU memory
+- **inference_chunk_size**: Increase/decrease based on GPU memory during inference
 - **epochs**: Adjust training duration
 - **learning_rate**: Tune for your dataset
 
@@ -108,7 +108,7 @@ python -c "from niftilearn.config.loader import load_config; load_config('your_c
 
 ### 4. Use CLI overrides for quick testing
 ```bash
-niftilearn train -c config.yaml --epochs 5 --batch-size 2
+niftilearn train -c config.yaml --epochs 5 --inference-chunk-size 2
 ```
 
 ## Hardware-Specific Tips
@@ -125,13 +125,13 @@ niftilearn train -c config.yaml --epochs 5 --batch-size 2
 
 ### CPU Only
 - Use `accelerator: "cpu"` and `precision: "32"`
-- Reduce `batch_size` and `img_size` for reasonable performance
+- Reduce `inference_chunk_size` and `img_size` for reasonable performance
 - Consider fewer `num_workers`
 
 ## Common Issues
 
 ### Memory Errors
-- Reduce `batch_size` and/or `img_size`
+- Reduce `inference_chunk_size` and/or `img_size`
 - Use `precision: "16-mixed"` on compatible hardware
 - Decrease model `features`
 
@@ -143,7 +143,7 @@ niftilearn train -c config.yaml --epochs 5 --batch-size 2
 ### Configuration Validation Errors
 - Ensure `data.slice_axis == model.slice_axis`
 - Ensure `data.img_size == model.img_size`
-- Ensure `data.batch_size == training.batch_size`
+- Ensure `data.inference_chunk_size == training.inference_chunk_size`
 - Verify all splits sum to 1.0
 
 For more help, see the main documentation or create an issue on GitHub.

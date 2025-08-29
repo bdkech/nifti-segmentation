@@ -83,7 +83,7 @@ torchrun --nproc_per_node=2 -m niftilearn.cli.main --config example_config.yaml 
 niftilearn predict --model checkpoints/best.ckpt --input volume.nii.gz --output segmentation.nii.gz
 
 # Training with parameter overrides
-niftilearn --config example_config.yaml train --epochs 100 --batch-size 8 --learning-rate 1e-4
+niftilearn --config example_config.yaml train --epochs 100 --inference-chunk-size 8 --learning-rate 1e-4
 ```
 
 **Status**: Core implementation complete and ready for deployment. Optional enhancements and testing remain.
