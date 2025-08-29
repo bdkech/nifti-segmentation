@@ -301,15 +301,18 @@ class UNet2D(pl.LightningModule):
             )
             self.train_metrics.update(pred_probs, targets)
 
-        # Log training loss (Lightning 2.x pattern)
+        # Log training loss (Lightning 2.x pattern) - optimized for DDP
+        batch_size = images.shape[0]  # Number of slices in this volume
         self.log(
             "train_loss",
             loss,
             on_step=True,
-            on_epoch=True,
+            on_epoch=False,  # Avoid epoch aggregation for performance
             prog_bar=True,
             logger=True,
-            sync_dist=True,
+            sync_dist=False,  # No sync needed for training steps
+            batch_size=batch_size,  # For proper aggregation
+            add_dataloader_idx=False,
         )
 
         return loss
@@ -355,15 +358,18 @@ class UNet2D(pl.LightningModule):
         )
         self.val_metrics.update(pred_probs, targets)
 
-        # Log validation loss
+        # Log validation loss - sync required for accurate distributed validation
+        batch_size = images.shape[0]  # Number of slices in this volume
         self.log(
             "val_loss",
             loss,
             on_step=False,
-            on_epoch=True,
+            on_epoch=True,  # Epoch-level validation metrics
             prog_bar=True,
             logger=True,
-            sync_dist=True,
+            sync_dist=True,  # Sync needed for accurate distributed validation
+            batch_size=batch_size,  # For proper aggregation across ranks
+            add_dataloader_idx=False,
         )
 
         return loss
@@ -388,7 +394,8 @@ class UNet2D(pl.LightningModule):
                     on_epoch=True,
                     prog_bar=True,
                     logger=True,
-                    sync_dist=True,
+                    sync_dist=False,  # MONAI metrics already aggregated across devices
+                    add_dataloader_idx=False,
                 )
 
             # Reset metrics for next epoch
@@ -401,7 +408,14 @@ class UNet2D(pl.LightningModule):
             and self.trainer.optimizers
         ):
             current_lr = self.trainer.optimizers[0].param_groups[0]["lr"]
-            self.log("learning_rate", current_lr, on_epoch=True, logger=True)
+            self.log(
+                "learning_rate",
+                current_lr,
+                on_epoch=True,
+                logger=True,
+                sync_dist=False,  # LR is identical across all ranks
+                add_dataloader_idx=False,
+            )
 
     def on_validation_epoch_end(self) -> None:
         """Called at the end of validation epoch (Lightning 2.x)."""
@@ -423,7 +437,8 @@ class UNet2D(pl.LightningModule):
                     on_epoch=True,
                     prog_bar=True,
                     logger=True,
-                    sync_dist=True,
+                    sync_dist=False,  # MONAI metrics already aggregated across devices
+                    add_dataloader_idx=False,
                 )
 
             # Reset metrics for next epoch
