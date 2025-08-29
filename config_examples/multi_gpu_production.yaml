@@ -8,7 +8,7 @@ data:
   val_split: 0.15
   test_split: 0.05
   slice_axis: 2
-  batch_size: 16                       # Larger batch size for multi-GPU
+  inference_chunk_size: 16             # Larger chunk size for multi-GPU inference
   img_size: [256, 256]                 # Higher resolution
   target_spacing: [0.5, 0.5, 0.5]     # Higher resolution spacing
   target_size: [256, 256, 128]
@@ -34,7 +34,7 @@ model:
 
 training:
   epochs: 200                          # More epochs for production
-  batch_size: 16
+  inference_chunk_size: 16
   learning_rate: 2e-4                  # Adjusted for larger batch size
   optimizer: "AdamW"
   loss_function: "dicece"

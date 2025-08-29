@@ -53,7 +53,7 @@ niftilearn/
 niftilearn --config example_config.yaml train
 
 # Train with parameter overrides
-niftilearn --config example_config.yaml train --epochs 50 --batch-size 4 --learning-rate 5e-5
+niftilearn --config example_config.yaml train --epochs 50 --inference-chunk-size 4 --learning-rate 5e-5
 
 # Multi-GPU training with torchrun
 torchrun --nproc_per_node=2 -m niftilearn.cli.main --config example_config.yaml train
@@ -134,7 +134,7 @@ data:
   val_split: 0.2
   test_split: 0.1
   slice_axis: 2                        # Extract sagittal slices
-  batch_size: 8                        # Slices per batch from same volume
+  inference_chunk_size: 8              # Number of slices processed at once during inference
   img_size: [224, 224]                 # Target 2D slice size
   use_adaptive_hu_normalization: true  # Adaptive HU windowing
 
@@ -147,7 +147,7 @@ model:
 
 training:
   epochs: 100
-  batch_size: 8                        # Must match data.batch_size
+  inference_chunk_size: 8              # Must match data.inference_chunk_size
   learning_rate: 1e-4
   optimizer: "AdamW"
   loss_function: "dicece"              # MONAI loss functions
