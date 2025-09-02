@@ -31,9 +31,10 @@ def get_hu_window_values(preset: str) -> tuple[float, float]:
         Tuple of (min_hu, max_hu) values
     """
     presets = {
-        "soft_tissue": (-50, 250),
-        "bone": (-200, 1000),
-        "lung": (-1000, 400),
+        "muscle": (45, 50),
+        "s_fat": (-100, -115),
+        "arteries": (30, 60),
+        "arteries_w_contrast": (250, 400),
     }
 
     if preset not in presets:
@@ -88,7 +89,7 @@ def create_volume_preprocessing_transform(data_config: DataConfig) -> Compose:
             ScaleIntensityRanged(
                 keys=["volume"],
                 a_min=-1000,  # Typical HU range
-                a_max=1000,
+                a_max=3000,
                 b_min=0.0,
                 b_max=1.0,
                 clip=True,
@@ -103,7 +104,7 @@ def create_volume_preprocessing_transform(data_config: DataConfig) -> Compose:
                 data_config.hu_min if data_config.hu_min is not None else -1000
             )
             hu_max = (
-                data_config.hu_max if data_config.hu_max is not None else 1000
+                data_config.hu_max if data_config.hu_max is not None else 3000
             )
 
         transforms.append(
