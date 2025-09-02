@@ -66,7 +66,7 @@ class DataConfig(BaseModel):
     )
 
     # Fixed HU windowing (when adaptive is disabled)
-    hu_window_preset: Optional[Literal["soft_tissue", "bone", "lung"]] = Field(
+    hu_window_preset: Optional[Literal["muscle", "s_fat", "arteries", "arteries_w_contrast"]] = Field(
         None, description="Predefined HU window preset"
     )
     hu_min: Optional[float] = Field(None, description="Minimum HU value")
