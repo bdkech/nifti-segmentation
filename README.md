@@ -76,7 +76,7 @@ from niftilearn.utils.reconstruction import reconstruct_volume_from_predictions
 # Load configuration and create components
 config = load_config("example_config.yaml")
 model = UNet2D(config.model)
-datamodule = NiftiDataModule(config.data)
+datamodule = NiftiDataModule(config.data, config.compute)
 
 # Training with Lightning
 import pytorch_lightning as pl
@@ -130,6 +130,7 @@ Use YAML configuration files for reproducible experiments. See `example_config.y
 data:
   data_dir: "./data/volumes"
   annotation_dir: "./data/annotations"
+  annotation_type: "ART"                   # Target annotation: "ART", "RA", "S_FAT"
   train_split: 0.7
   val_split: 0.2
   test_split: 0.1

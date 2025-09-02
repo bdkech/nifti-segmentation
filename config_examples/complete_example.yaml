@@ -9,6 +9,9 @@ data:
   data_dir: "./data/volumes"           # Directory containing NIFTI volumes
   annotation_dir: "./data/annotations" # Directory containing segmentation masks
   
+  # Annotation type
+  annotation_type: "ART"               # Target annotation type: "ART", "RA", "S_FAT"
+  
   # Dataset splits (must sum to 1.0)
   train_split: 0.7                     # 70% for training
   val_split: 0.2                       # 20% for validation  

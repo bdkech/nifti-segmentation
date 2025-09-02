@@ -13,6 +13,9 @@ class DataConfig(BaseModel):
     annotation_dir: Path = Field(
         ..., description="Path to annotation directory"
     )
+    annotation_type: Literal["ART", "RA", "S_FAT"] = Field(
+        "ART", description="Target annotation type to load"
+    )
     train_split: float = Field(
         0.7, ge=0.0, le=1.0, description="Training split ratio"
     )

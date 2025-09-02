@@ -27,7 +27,6 @@ class NiftiDataModule(pl.LightningDataModule):
         self,
         data_config: DataConfig,
         compute_config: ComputeConfig,
-        annotation_type: str = "ART",
         enable_caching: bool = False,
         cache_size: int = 10,
         random_seed: int = 42,
@@ -35,9 +34,8 @@ class NiftiDataModule(pl.LightningDataModule):
         """Initialize the NIFTI DataModule.
 
         Args:
-            data_config: Data processing configuration
+            data_config: Data processing configuration (includes annotation_type)
             compute_config: Compute configuration including num_workers
-            annotation_type: Target annotation type (e.g., 'ART', 'RA', 'S_FAT')
             enable_caching: Enable volume caching in datasets
             cache_size: Maximum number of volumes to cache per dataset
             random_seed: Random seed for reproducible splits
@@ -50,7 +48,7 @@ class NiftiDataModule(pl.LightningDataModule):
         # Store configuration
         self.data_config = data_config
         self.compute_config = compute_config
-        self.annotation_type = annotation_type
+        self.annotation_type = data_config.annotation_type
         self.enable_caching = enable_caching
         self.cache_size = cache_size
         self.random_seed = random_seed
@@ -72,7 +70,7 @@ class NiftiDataModule(pl.LightningDataModule):
             )
 
         logger.info(
-            f"NiftiDataModule initialized for annotation type: {annotation_type}"
+            f"NiftiDataModule initialized for annotation type: {self.annotation_type}"
         )
         logger.info(f"Data directory: {data_config.data_dir}")
         logger.info(
