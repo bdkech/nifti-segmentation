@@ -138,6 +138,7 @@ def create_test_configurations(
     data_config = DataConfig(
         data_dir=args.data_dir,
         annotation_dir=args.data_dir,  # Same directory for annotations
+        annotation_type=args.annotation_type,  # Use annotation type from args
         train_split=0.7,
         val_split=0.2,
         test_split=0.1,
@@ -196,14 +197,13 @@ def create_test_configurations(
 
 
 def test_dataset_loading(
-    data_config: DataConfig, compute_config: ComputeConfig, annotation_type: str
+    data_config: DataConfig, compute_config: ComputeConfig
 ) -> dict[str, Any]:
     """Test dataset loading and return a sample batch.
 
     Args:
-        data_config: Data configuration
+        data_config: Data configuration (includes annotation_type)
         compute_config: Compute configuration
-        annotation_type: Annotation type to load
 
     Returns:
         Dictionary containing sample batch data
@@ -218,7 +218,6 @@ def test_dataset_loading(
         datamodule = NiftiDataModule(
             data_config=data_config,
             compute_config=compute_config,
-            annotation_type=annotation_type,
             enable_caching=False,  # Disable caching for testing
             cache_size=1,
             random_seed=42,
@@ -234,7 +233,7 @@ def test_dataset_loading(
             logger.info("✓ Discovery completed:")
             logger.info(f"  Total subjects: {summary['total_subjects']}")
             logger.info(
-                f"  Subjects with {annotation_type}: {summary['subjects_with_target_annotation']}"
+                f"  Subjects with {data_config.annotation_type}: {summary['subjects_with_target_annotation']}"
             )
             logger.info(
                 f"  Available annotations: {summary['annotation_types']}"
@@ -242,7 +241,7 @@ def test_dataset_loading(
 
         if summary and summary["subjects_with_target_annotation"] == 0:
             logger.error(
-                f"No subjects found with annotation type '{annotation_type}'"
+                f"No subjects found with annotation type '{data_config.annotation_type}'"
             )
             sys.exit(1)
 
@@ -423,9 +422,7 @@ def main() -> None:
     logger.info("")
 
     # Step 3: Test dataset loading
-    batch = test_dataset_loading(
-        data_config, compute_config, args.annotation_type
-    )
+    batch = test_dataset_loading(data_config, compute_config)
     logger.info("")
 
     # Step 4: Test model initialization
@@ -442,7 +439,9 @@ def main() -> None:
     logger.info("=" * 60)
     logger.info("Integration test results:")
     logger.info(f"  ✓ Data directory validated: {args.data_dir}")
-    logger.info(f"  ✓ Dataset loaded with {args.annotation_type} annotations")
+    logger.info(
+        f"  ✓ Dataset loaded with {data_config.annotation_type} annotations"
+    )
     logger.info(
         f"  ✓ UNet2D model initialized with {model_config.features} features"
     )

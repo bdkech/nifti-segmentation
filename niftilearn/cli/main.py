@@ -89,12 +89,19 @@ def main(
     type=float,
     help="Learning rate (overrides config)",
 )
+@click.option(
+    "--annotation-type",
+    "-a",
+    type=click.Choice(["ART", "RA", "S_FAT"]),
+    help="Annotation type to train on (overrides config)",
+)
 @click.pass_context
 def train(
     ctx: click.Context,
     epochs: Optional[int],
     inference_chunk_size: Optional[int],
     learning_rate: Optional[float],
+    annotation_type: Optional[str],
 ) -> None:
     """Train a segmentation model on NIFTI volumes."""
     config_path = ctx.obj.get("config_path")
@@ -117,6 +124,9 @@ def train(
     if learning_rate is not None:
         overrides["learning_rate"] = learning_rate
         logger.info(f"Overriding learning rate: {learning_rate}")
+    if annotation_type is not None:
+        overrides["annotation_type"] = annotation_type
+        logger.info(f"Overriding annotation type: {annotation_type}")
 
     # Load configuration
     import pytorch_lightning as pl
@@ -143,6 +153,8 @@ def train(
             )
         if learning_rate is not None:
             config.training.learning_rate = learning_rate
+        if annotation_type is not None:
+            config.data.annotation_type = annotation_type
 
         logger.info(f"Training configuration loaded: {config.training}")
 

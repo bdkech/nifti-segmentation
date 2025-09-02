@@ -20,6 +20,7 @@ def main():
         annotation_dir=Path(
             "/path/to/annotations"
         ),  # Not used in current implementation
+        annotation_type="ART",  # Target artery annotations
         train_split=0.7,
         val_split=0.2,
         test_split=0.1,
@@ -42,7 +43,6 @@ def main():
     datamodule = NiftiDataModule(
         data_config=data_config,
         compute_config=compute_config,
-        annotation_type="ART",  # Target artery annotations
         enable_caching=True,  # Cache volumes for faster loading
         cache_size=10,  # Cache up to 10 volumes per dataset split
         random_seed=42,  # For reproducible splits

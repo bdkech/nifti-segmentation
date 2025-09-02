@@ -116,6 +116,10 @@ def apply_cli_overrides(config: Config, overrides: dict[str, Any]) -> Config:
             config_dict["training"]["learning_rate"] = overrides[
                 "learning_rate"
             ]
+        if "annotation_type" in overrides:
+            config_dict["data"]["annotation_type"] = overrides[
+                "annotation_type"
+            ]
 
         # Re-validate with overrides
         updated_config = Config(**config_dict)
